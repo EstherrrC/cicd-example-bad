@@ -1,0 +1,13 @@
+pipeline:
+  name: failing-tests
+  description: Demonstrates a pipeline that fails due to test failures
+
+stages:
+  - test
+
+run-tests:
+  stage: test
+  image: python:3.12-slim
+  script:
+    - pip install pytest --quiet
+    - pytest tests/ -v

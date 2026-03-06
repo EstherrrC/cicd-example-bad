@@ -1,0 +1,12 @@
+pipeline:
+  name: syntax-error
+  description: Demonstrates a pipeline that fails due to a Python syntax error at runtime
+
+stages:
+  - build
+
+check-syntax:
+  stage: build
+  image: python:3.12-slim
+  script:
+    - python src/broken_syntax.py
