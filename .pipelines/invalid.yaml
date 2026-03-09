@@ -1,0 +1,42 @@
+pipeline:
+  name: invalid-demo
+  description: Demonstrates four validation errors
+
+stages:
+  - build
+  - test
+  - deploy      # ERROR 1: empty stage, no jobs assigned
+
+install-deps:
+  stage: build
+  image: python:3.11
+  script:
+    - pip install -r requirements.txt
+
+unit-tests:
+  stage: test
+  image: python:3.11
+  needs: []        # ERROR 2: empty needs list
+  script:
+    - pytest tests/
+
+check-format:
+  stage: test
+  image: python:3.11
+  needs: [lint]    # ERROR 3: 'lint' is not defined in stage 'test'
+  script:
+    - echo "checking format..."
+
+package:
+  stage: build
+  image: python:3.11
+  needs: [release]    # ERROR 4: circular dependency package -> release -> package
+  script:
+    - echo "packaging..."
+
+release:
+  stage: build
+  image: python:3.11
+  needs: [package]
+  script:
+    - echo "releasing..."
