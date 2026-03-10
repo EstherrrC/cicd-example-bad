@@ -26,11 +26,11 @@ cicd verify .pipelines/example_bad_invalid.yaml
 
 Expected output:
 ```
-✗ Found 4 error(s) in '.pipelines/invalid.yaml':
-.pipelines/invalid.yaml:5:1: Empty stage 'deploy' has no jobs assigned
-.pipelines/invalid.yaml:19:3: Job 'unit-tests' has an empty needs list. If defined, needs must contain at least one job name.
-.pipelines/invalid.yaml:26:3: Job 'check-format' needs 'lint' which is not defined
-.pipelines/invalid.yaml:33:3: Circular dependency detected: package -> release -> package
+✗ Found 4 error(s) in '.pipelines/example_bad_invalid.yaml':
+.pipelines/example_bad_invalid.yaml:5:1: Empty stage 'deploy' has no jobs assigned
+.pipelines/example_bad_invalid.yaml:19:3: Job 'unit-tests' has an empty needs list. If defined, needs must contain at least one job name.
+.pipelines/example_bad_invalid.yaml:26:3: Job 'check-format' needs 'lint' which is not defined
+.pipelines/example_bad_invalid.yaml:33:3: Circular dependency detected: package -> release -> package
 ```
 
 ---
@@ -43,7 +43,7 @@ cicd run --name example_bad_default
 
 Expected output:
 ```
-Submitting pipeline 'failing-default' for execution...
+Submitting pipeline 'example_bad_default' for execution...
 ✓ Pipeline queued successfully (run ID: 1)
 Waiting for pipeline to complete...
 
@@ -54,7 +54,7 @@ Run ID: 1
 The following jobs failed:
   ✗ test / unit-tests (exit code: 1)
 
-For more details run: cicd report --pipeline failing-default --run 1
+For more details run: cicd report --pipeline example_bad_default --run 1
 ```
 
 ---
@@ -69,15 +69,15 @@ cicd report --pipeline example_bad_default
 Expected output:
 ```yaml
 pipeline:
-  name: failing-default
+  name: example_bad_default
   runs:
   - run-no: 1
     status: failed
-    git-repo: https://github.com/EstherrrC/cicd-example-failing.git
+    git-repo: https://github.com/EstherrrC/cicd-example-bad.git
     git-branch: main
-    git-hash: a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2
-    start: '2026-03-09T03:01:01.854256+00:00'
-    end: '2026-03-09T03:01:05.172501+00:00'
+    git-hash: ac7ccd3ee0c61fbb2d05c2bb1281aee6f987d6db
+    start: '2026-03-10T22:23:15.015462+00:00'
+    end: '2026-03-10T22:23:20.817241+00:00'
 ```
 
 Details for a specific run:
