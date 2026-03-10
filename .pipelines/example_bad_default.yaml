@@ -1,5 +1,5 @@
 pipeline:
-  name: example-bad-default
+  name: example_bad_default
   description: Pipeline that fails due to a bug in src/main.py
 
 stages:

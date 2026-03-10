@@ -1,5 +1,5 @@
 pipeline:
-  name: example-bad-invalid
+  name: example_bad_invalid
   description: Demonstrates four validation errors
 
 stages:
