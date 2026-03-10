@@ -1,11 +1,11 @@
-# cicd-example-bad
+# cicd-example-failing
 
-A Python project intentionally containing bugs and errors, used to demonstrate
+A Python project intentionally containing bugs and validation errors, used to demonstrate
 failure scenarios in the B-Team CI/CD system.
 
 This repository contains:
-- A project with a **logical bug** causing test failures
-- A file with a **syntax error** causing a runtime failure
+- A project with a **logical bug** causing test failures at runtime
+- An invalid pipeline definition (`example_bad_invalid.yaml`) demonstrating four validation errors
 
 ---
 
@@ -18,62 +18,87 @@ Refer to the main repository's README for installation instructions.
 
 ## Demo Commands
 
-### 1. Run the failing-tests pipeline (tests will fail)
+### 1. Validate a pipeline that fails validation
+
 ```bash
-cicd run --name failing-tests
+cicd verify .pipelines/example_bad_invalid.yaml
 ```
 
 Expected output:
-
-[Pipeline: failing-tests] Starting run #1
-[Stage: test] Running job: run-tests ... ✗ failed
-[Pipeline: failing-tests] Run #1 completed: FAILED
-Job 'run-tests' failed with exit code 1:
-FAILED tests/test_converter.py::test_celsius_to_fahrenheit - AssertionError
-
+```
+✗ Found 4 error(s) in '.pipelines/invalid.yaml':
+.pipelines/invalid.yaml:5:1: Empty stage 'deploy' has no jobs assigned
+.pipelines/invalid.yaml:19:3: Job 'unit-tests' has an empty needs list. If defined, needs must contain at least one job name.
+.pipelines/invalid.yaml:26:3: Job 'check-format' needs 'lint' which is not defined
+.pipelines/invalid.yaml:33:3: Circular dependency detected: package -> release -> package
+```
 
 ---
 
-### 2. Run the syntax-error pipeline (runtime crash)
+### 2. Run a pipeline that fails (test failure)
+
 ```bash
-cicd run --name syntax-error
+cicd run --name example_bad_default
 ```
 
 Expected output:
+```
+Submitting pipeline 'failing-default' for execution...
+✓ Pipeline queued successfully (run ID: 1)
+Waiting for pipeline to complete...
 
-[Pipeline: syntax-error] Starting run #1
-[Stage: build] Running job: check-syntax ... ✗ failed
-[Pipeline: syntax-error] Run #1 completed: FAILED
-Job 'check-syntax' failed with exit code 1:
-File "src/broken_syntax.py", line 1
-def greet(name)
-^
-SyntaxError: expected ':'
+✗ Pipeline failed.
+Total time: 22s
+Run ID: 1
+
+The following jobs failed:
+  ✗ test / unit-tests (exit code: 1)
+
+For more details run: cicd report --pipeline failing-default --run 1
+```
 
 ---
 
 ### 3. View report for a failed run
 
-After running one or both pipelines:
+All runs for the pipeline:
 ```bash
-cicd report --pipeline failing-tests
+cicd report --pipeline example_bad_default
 ```
-```bash
-cicd report --pipeline failing-tests --run 1
+
+Expected output:
+```yaml
+pipeline:
+  name: failing-default
+  runs:
+  - run-no: 1
+    status: failed
+    git-repo: https://github.com/EstherrrC/cicd-example-failing.git
+    git-branch: main
+    git-hash: a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2
+    start: '2026-03-09T03:01:01.854256+00:00'
+    end: '2026-03-09T03:01:05.172501+00:00'
 ```
+
+Details for a specific run:
 ```bash
-cicd report --pipeline failing-tests --run 1 --stage test
+cicd report --pipeline example_bad_default --run 1
 ```
+
+Details for a specific stage:
 ```bash
-cicd report --pipeline failing-tests --run 1 --stage test --job run-tests
+cicd report --pipeline example_bad_default --run 1 --stage test
+```
+
+Details for a specific job:
+```bash
+cicd report --pipeline example_bad_default --run 1 --stage test --job unit-tests
 ```
 
 ---
 
-## Additional Explanation
+## Additional Notes
 
-- `failing-tests.yaml`: The `celsius_to_fahrenheit` function in `converter.py` contains a bug in the formula (it is missing `+ 32`), which causes two test assertions to fail, resulting in the pipeline status being `failed`.
-
-- `syntax-error.yaml`: The first line of `broken_syntax.py` is missing a colon, so Python crashes during the parsing stage, and the pipeline status becomes `failed`.
-
-- Both of these failures are **runtime failures** (the pipeline YAML itself is valid), which is different from the validation failures produced by `cicd verify`.
+- The `add()` function in `src/main.py` contains a bug (`a - b` instead of `a + b`), causing `test_add` to fail — this is intentional to demonstrate a pipeline runtime failure.
+- `example_bad_invalid.yaml` demonstrates all four validation rules: empty stage, empty needs list, undefined needs reference, and circular dependency. This file is intentionally invalid and **cannot be run**, only verified.
+- Runtime failures (wrong test results) are different from validation failures (invalid YAML structure) — this repo demonstrates both.
